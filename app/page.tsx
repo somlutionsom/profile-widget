@@ -779,8 +779,7 @@ export default function Home() {
                 className="url-popup-input"
                 style={{
                   borderColor: buttonColor,
-                  border: `2px solid ${buttonColor}`,
-                  '--focus-shadow': `${buttonColor}33`
+                  border: `2px solid ${buttonColor}`
                 }}
                 placeholder="https://example.com"
                 autoFocus
