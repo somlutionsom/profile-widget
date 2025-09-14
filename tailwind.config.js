@@ -5,6 +5,9 @@ module.exports = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  corePlugins: {
+    preflight: false, // Disable Tailwind's CSS reset
+  },
   theme: {
     extend: {
       fontFamily: {
