@@ -126,6 +126,19 @@ body {
   line-height: 1.6;
 }
 
+/* iframe 내에서 표시될 때 최적화 */
+@media (max-width: 500px) {
+  .main-container {
+    padding: 8px;
+  }
+  
+  .outer-container {
+    max-width: 100%;
+    height: auto;
+    min-height: 480px;
+  }
+}
+
 /* Main Container - 전체 화면 레이아웃 */
 .main-container {
   min-height: 100vh;

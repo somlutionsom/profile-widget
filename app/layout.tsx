@@ -51,6 +51,10 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     type: 'website',
   },
+  other: {
+    'notion:embed': 'true',
+    'notion:widget': 'true',
+  },
   twitter: {
     card: 'summary_large_image',
     title: "Profile Widget - 나만의 프로필 위젯",

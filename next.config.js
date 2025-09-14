@@ -43,11 +43,11 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            value: 'ALLOWALL',
           },
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors 'self' https://notion.so https://*.notion.so https://www.notion.so;",
+            value: "frame-ancestors 'self' https://notion.so https://*.notion.so https://www.notion.so https://notion.site https://*.notion.site *;",
           },
           {
             key: 'X-Content-Type-Options',
