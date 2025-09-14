@@ -126,7 +126,7 @@ body {
   line-height: 1.6;
 }
 
-/* iframe 내에서 표시될 때 최적화 */
+/* 작은 화면에서 중앙 정렬 최적화 */
 @media (max-width: 500px) {
   .main-container {
     padding: 8px;
@@ -134,14 +134,32 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0 auto;
+    width: 100%;
+    min-width: 0;
   }
   
   .outer-container {
-    max-width: 100%;
-    width: 100%;
+    max-width: calc(100% - 16px);
+    width: calc(100% - 16px);
     height: auto;
     min-height: 480px;
     margin: 0 auto;
+    left: 0;
+    right: 0;
+    position: relative;
+  }
+}
+
+/* 더 작은 화면 (모바일) */
+@media (max-width: 400px) {
+  .main-container {
+    padding: 4px;
+  }
+  
+  .outer-container {
+    max-width: calc(100% - 8px);
+    width: calc(100% - 8px);
+    padding: 16px;
   }
 }
 
@@ -168,6 +186,7 @@ html, body {
   padding: 16px;
   width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* Outer Container - 외부 박스 */
@@ -179,6 +198,8 @@ html, body {
   max-width: 380px;
   width: 100%;
   height: 530px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 
