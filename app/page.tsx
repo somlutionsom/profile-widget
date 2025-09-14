@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText } from '../lib/supabase';
 
 export default function Home() {
@@ -522,13 +521,11 @@ export default function Home() {
           style={{ backgroundColor: buttonColor }}
         >
           {bannerImage ? (
-            <Image 
+            <img 
               src={bannerImage} 
               alt="Banner" 
               className="banner-image"
-              width={400}
-              height={200}
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             />
           ) : (
             <div className="banner-placeholder" style={{ backgroundColor: buttonColor }}>
@@ -547,13 +544,11 @@ export default function Home() {
         <div className="avatar-container">
           <div className="profile-avatar" onClick={handleAvatarClick}>
             {avatarImage ? (
-              <Image 
+              <img 
                 src={avatarImage} 
                 alt="Profile" 
                 className="avatar-image"
-                width={110}
-                height={110}
-                style={{ objectFit: 'cover' }}
+                style={{ objectFit: 'cover', width: '100%', height: '100%' }}
               />
             ) : (
               <div className="avatar-placeholder">
