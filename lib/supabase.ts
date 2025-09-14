@@ -52,7 +52,7 @@ export async function signUp(email: string, password: string) {
     }
     
     return { success: true, data }
-  } catch (err) {
+  } catch {
     return { success: false, error: '회원가입 실패' }
   }
 }
@@ -70,7 +70,7 @@ export async function signIn(email: string, password: string) {
     }
     
     return { success: true, data }
-  } catch (err) {
+  } catch {
     return { success: false, error: '로그인 실패' }
   }
 }
@@ -85,7 +85,7 @@ export async function signOut() {
     }
     
     return { success: true }
-  } catch (err) {
+  } catch {
     return { success: false, error: '로그아웃 실패' }
   }
 }
@@ -100,7 +100,7 @@ export async function getCurrentUser() {
     }
     
     return { success: true, user }
-  } catch (err) {
+  } catch {
     return { success: false, error: '사용자 정보 가져오기 실패' }
   }
 }
@@ -161,8 +161,7 @@ export async function getUserProfile(userId: string) {
     
     console.log('프로필 데이터 불러오기 성공:', data);
     return { success: true, data }
-  } catch (err) {
-    console.error('프로필 데이터 불러오기 예외:', err);
+  } catch {
     return { success: false, error: '프로필 데이터 가져오기 실패' }
   }
 }
@@ -301,8 +300,7 @@ export async function saveUserProfile(profileData: Partial<UserProfile>) {
     }
 
     return { success: true, data: result.data }
-  } catch (err) {
-    console.error('프로필 저장 예외:', err);
+  } catch {
     return { success: false, error: '프로필 저장 실패' }
   }
 }

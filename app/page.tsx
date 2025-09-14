@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText, UserProfile } from '../lib/supabase';
+import Image from 'next/image';
+import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText } from '../lib/supabase';
 
 export default function Home() {
   const [texts, setTexts] = useState({
@@ -34,7 +35,7 @@ export default function Home() {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<{ id: string; email?: string } | null>(null);
   
   const [editing, setEditing] = useState({
     first: false,
@@ -53,7 +54,6 @@ export default function Home() {
   const [hyperlink, setHyperlink] = useState('');
   
   // 로딩 상태 추가
-  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleEdit = (key: 'first' | 'second') => {
@@ -267,7 +267,7 @@ export default function Home() {
       } else {
         setLoginError(result.error || '오류가 발생했습니다.');
       }
-    } catch (error) {
+    } catch {
       setLoginError('네트워크 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
@@ -419,7 +419,7 @@ export default function Home() {
     } catch (error) {
       console.error('프로필 데이터 불러오기 중 예외 발생:', error);
     } finally {
-      setIsProfileLoading(false);
+      // 프로필 로딩 완료
     }
   };
 
@@ -447,11 +447,10 @@ export default function Home() {
           // 프로필 데이터 로딩을 병렬로 처리하지 않고 바로 시작
           loadProfileData(userResult.user.id);
         } else {
-          setIsProfileLoading(false);
+          // 로그인되지 않은 상태
         }
       } catch (error) {
         console.error('사용자 확인 중 오류:', error);
-        setIsProfileLoading(false);
       }
     };
 
@@ -523,10 +522,13 @@ export default function Home() {
           style={{ backgroundColor: buttonColor }}
         >
           {bannerImage ? (
-            <img 
+            <Image 
               src={bannerImage} 
               alt="Banner" 
               className="banner-image"
+              width={400}
+              height={200}
+              style={{ objectFit: 'cover' }}
             />
           ) : (
             <div className="banner-placeholder" style={{ backgroundColor: buttonColor }}>
@@ -545,10 +547,13 @@ export default function Home() {
         <div className="avatar-container">
           <div className="profile-avatar" onClick={handleAvatarClick}>
             {avatarImage ? (
-              <img 
+              <Image 
                 src={avatarImage} 
                 alt="Profile" 
                 className="avatar-image"
+                width={110}
+                height={110}
+                style={{ objectFit: 'cover' }}
               />
             ) : (
               <div className="avatar-placeholder">
