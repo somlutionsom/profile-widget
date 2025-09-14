@@ -163,7 +163,7 @@ body {
   }
 }
 
-/* 노션 iframe 내에서 중앙 정렬 강제 */
+/* 기본 스타일 리셋 */
 html, body {
   margin: 0;
   padding: 0;
@@ -185,7 +185,7 @@ html, body {
   justify-content: center;
   padding: 16px;
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
   box-sizing: border-box;
 }
 
@@ -196,10 +196,11 @@ html, body {
   border-radius: 20px;
   padding: 20px;
   max-width: 380px;
-  width: 100%;
+  width: 380px;
   height: 530px;
-  margin: 0 auto;
+  margin: 0;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 
