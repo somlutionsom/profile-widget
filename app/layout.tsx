@@ -31,14 +31,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://profile-widget.vercel.app'),
+  metadataBase: new URL('https://profile-widget-ttux.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "Profile Widget - 나만의 프로필 위젯",
     description: "예쁘고 개성있는 프로필 위젯을 만들어보세요. 색상, 문구, 이미지를 자유롭게 커스터마이징할 수 있습니다.",
-    url: 'https://profile-widget.vercel.app',
+    url: 'https://profile-widget-ttux.vercel.app',
     siteName: 'Profile Widget',
     images: [
       {
