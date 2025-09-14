@@ -85,7 +85,7 @@
 }
 
 :root {
-  --background: #F5F5F7;
+  --background: #FFFFFF;
   --foreground: #2C2C2E;
   
   /* Design System Colors from design.js */
@@ -113,7 +113,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #F5F5F7;
+    --background: #FFFFFF;
     --foreground: #2C2C2E;
   }
 }
@@ -130,23 +130,44 @@ body {
 @media (max-width: 500px) {
   .main-container {
     padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
   }
   
   .outer-container {
     max-width: 100%;
+    width: 100%;
     height: auto;
     min-height: 480px;
+    margin: 0 auto;
   }
+}
+
+/* 노션 iframe 내에서 중앙 정렬 강제 */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #FFFFFF;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 /* Main Container - 전체 화면 레이아웃 */
 .main-container {
   min-height: 100vh;
-  background: #F5F5F7;
+  background: #FFFFFF;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* Outer Container - 외부 박스 */
