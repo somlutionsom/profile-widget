@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -90,9 +90,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Profile Widget" />
         <link rel="manifest" href="/manifest.json" />
-      </head>
+      </head>도ㅣ게 ㅎㅎ
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${pressStart2P.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${pressStart2P.variable} antialiased`}
       >
         {children}
       </body>

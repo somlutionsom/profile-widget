@@ -1,33 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/((?!api|_next/static|_next/image|favicon.ico|og-image.svg|manifest.json|robots.txt).*)",
+      "source": "/(.*)",
       "destination": "/"
     }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'self' https://notion.so https://www.notion.so https://notion.site"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
