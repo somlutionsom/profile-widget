@@ -90,7 +90,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Profile Widget" />
         <link rel="manifest" href="/manifest.json" />
-      </head>도ㅣ게 ㅎㅎ
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${pressStart2P.variable} antialiased`}
       >
