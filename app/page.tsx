@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText } from '../lib/supabase';
+import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText, UserProfile } from '../lib/supabase';
 
 export default function Home() {
   const [texts, setTexts] = useState({
@@ -34,7 +34,7 @@ export default function Home() {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<{ id: string; email?: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   
   const [editing, setEditing] = useState({
     first: false,
@@ -53,6 +53,7 @@ export default function Home() {
   const [hyperlink, setHyperlink] = useState('');
   
   // 로딩 상태 추가
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleEdit = (key: 'first' | 'second') => {
@@ -266,7 +267,7 @@ export default function Home() {
       } else {
         setLoginError(result.error || '오류가 발생했습니다.');
       }
-    } catch {
+    } catch (error) {
       setLoginError('네트워크 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
@@ -418,7 +419,7 @@ export default function Home() {
     } catch (error) {
       console.error('프로필 데이터 불러오기 중 예외 발생:', error);
     } finally {
-      // 프로필 로딩 완료
+      setIsProfileLoading(false);
     }
   };
 
@@ -437,6 +438,19 @@ export default function Home() {
     const dayOfWeek = dayNames[today.getDay()];
     setDayString(dayOfWeek);
 
+    // 위젯 환경 감지 및 최적화
+    const isWidget = window.parent !== window || 
+                    document.referrer.includes('notion') ||
+                    window.location !== window.parent.location ||
+                    window.frameElement !== null;
+    
+    if (isWidget) {
+      console.log('위젯 환경이 감지되었습니다. 모바일 최적화를 적용합니다.');
+      // 위젯 환경에서 추가 최적화
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    }
+
     // 사용자 로그인 상태 확인 및 데이터 불러오기 (최적화됨)
     const checkUserAndLoadData = async () => {
       try {
@@ -446,10 +460,11 @@ export default function Home() {
           // 프로필 데이터 로딩을 병렬로 처리하지 않고 바로 시작
           loadProfileData(userResult.user.id);
         } else {
-          // 로그인되지 않은 상태
+          setIsProfileLoading(false);
         }
       } catch (error) {
         console.error('사용자 확인 중 오류:', error);
+        setIsProfileLoading(false);
       }
     };
 
@@ -508,7 +523,23 @@ export default function Home() {
   };
 
   return (
-    <div className="main-container">
+    <div 
+      className="main-container"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#FFFFFF',
+        width: '100%',
+        margin: 0,
+        padding: '10px',
+        boxSizing: 'border-box',
+        position: 'relative',
+        overflowX: 'hidden',
+        WebkitOverflowScrolling: 'touch'
+      }}
+    >
       {/* Outer Container */}
       <div className="outer-container">
         {/* Profile Card Container */}
@@ -525,7 +556,6 @@ export default function Home() {
               src={bannerImage} 
               alt="Banner" 
               className="banner-image"
-              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             />
           ) : (
             <div className="banner-placeholder" style={{ backgroundColor: buttonColor }}>
@@ -548,7 +578,6 @@ export default function Home() {
                 src={avatarImage} 
                 alt="Profile" 
                 className="avatar-image"
-                style={{ objectFit: 'cover', width: '100%', height: '100%' }}
               />
             ) : (
               <div className="avatar-placeholder">
@@ -775,7 +804,7 @@ export default function Home() {
                 style={{
                   borderColor: buttonColor,
                   border: `2px solid ${buttonColor}`
-                }}
+                } as React.CSSProperties}
                 placeholder="https://example.com"
                 autoFocus
               />

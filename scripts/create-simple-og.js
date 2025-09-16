@@ -63,3 +63,4 @@ fs.writeFileSync(svgPath, svgContent);
 
 console.log('OG 이미지 SVG가 생성되었습니다: public/og-image.svg');
 console.log('이 파일을 PNG로 변환하려면 온라인 도구나 ImageMagick을 사용하세요.');
+
