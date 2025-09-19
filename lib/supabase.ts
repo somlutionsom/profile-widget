@@ -17,9 +17,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       'x-app-name': 'profile-widget',
       'x-app-version': '1.0.0'
     },
-  },
-  realtime: {
-    enabled: false // 실시간 기능 비활성화로 성능 향상
   }
 })
 
