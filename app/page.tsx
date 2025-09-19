@@ -455,17 +455,24 @@ export default function Home() {
     };
     
     try {
-      const result = await saveUserProfile(profileData);
+      // 타임아웃 설정으로 빠른 실패 처리 (3초)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('저장 시간 초과')), 3000);
+      });
+      
+      const savePromise = saveUserProfile(profileData);
+      const result = await Promise.race([savePromise, timeoutPromise]) as any;
+      
       if (!result.success) {
         throw new Error(result.error);
       }
     } catch (error) {
       console.error(`프로필 저장 실패 (시도 ${retryCount + 1}):`, error);
       
-      // 타임아웃 오류이고 재시도 횟수가 2번 미만이면 재시도
-      if (retryCount < 2 && (error instanceof Error && error.message.includes('timeout'))) {
+      // 재시도 로직 단순화 (최대 1회, 더 빠른 재시도)
+      if (retryCount < 1 && (error instanceof Error && (error.message.includes('timeout') || error.message.includes('시간 초과')))) {
         console.log('재시도 중...');
-        await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+        await new Promise(resolve => setTimeout(resolve, 300)); // 재시도 간격 단축 (300ms)
         return saveProfileData(retryCount + 1);
       }
       
@@ -698,7 +705,7 @@ export default function Home() {
     editing, editValues, isInIframe
   ]);
 
-  // 수동 저장 함수 (최적화됨)
+  // 수동 저장 함수 (최적화됨 - 빠른 저장)
   const handleManualSave = async () => {
     if (!currentUser) {
       handleLoginPopupOpen();
@@ -713,20 +720,21 @@ export default function Home() {
     
     try {
       if (button) {
-        button.textContent = '저장 중...';
+        button.textContent = '저장중';
         button.style.backgroundColor = '#ffa726';
       }
       
+      // 즉시 저장 실행 (병렬 처리 제거)
       await saveProfileData();
       
       if (button) {
-        button.textContent = '✓ 저장됨';
+        button.textContent = '✓';
         button.style.backgroundColor = '#4CAF50';
       }
     } catch (error) {
       console.error('저장 중 오류:', error);
       if (button) {
-        button.textContent = '✗ 오류';
+        button.textContent = '✗';
         button.style.backgroundColor = '#f44336';
       }
     } finally {
@@ -736,7 +744,7 @@ export default function Home() {
           button.textContent = originalText;
           button.style.backgroundColor = '';
         }
-      }, 1500);
+      }, 400); // 시간 더 단축
     }
   };
 

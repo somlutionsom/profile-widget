@@ -10,7 +10,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: false // URL 세션 감지 비활성화로 성능 향상
   },
   global: {
     headers: { 
@@ -18,6 +18,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       'x-app-version': '1.0.0'
     },
   },
+  realtime: {
+    enabled: false // 실시간 기능 비활성화로 성능 향상
+  }
 })
 
 // 앱 설정 상수
@@ -291,8 +294,6 @@ export async function saveUserProfile(profileData: Partial<UserProfile>) {
       return { success: false, error: '로그인이 필요합니다' }
     }
 
-    console.log('프로필 데이터 저장 시도 - 사용자 ID:', user.id, '앱:', APP_CONFIG.name);
-
     // UPSERT 방식으로 단일 쿼리로 처리 (최적화됨)
     const result = await supabase
       .from(`${APP_CONFIG.tablePrefix}user_profiles`)
@@ -319,7 +320,6 @@ export async function saveUserProfile(profileData: Partial<UserProfile>) {
       return { success: false, error: result.error.message || '저장 실패' }
     }
 
-    console.log('프로필 데이터 저장 성공:', result.data);
     return { success: true, data: result.data }
   } catch (error) {
     console.error('프로필 저장 중 예외 발생:', error);
