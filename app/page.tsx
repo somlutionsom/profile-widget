@@ -594,21 +594,14 @@ export default function Home() {
 
     setupProgressiveLoading();
 
-    // Phase 5: 로딩 오버레이 및 디버깅 설정 (최적화됨)
+    // Phase 5: 로딩 오버레이 및 디버깅 설정 (완전 비활성화)
     const setupDebuggingAndOverlay = () => {
-      // 로딩 오버레이 비활성화 (성능 향상)
+      // 로딩 오버레이 비활성화
       setShowLoadingOverlay(false);
       
-      // 간단한 디버그 정보만 수집
-      const info = {
-        userAgent: navigator.userAgent,
-        isNotionMobile: isNotionMobile,
-        isInIframe: isInIframe,
-        progressiveStage: 3, // 즉시 완료
-        timestamp: new Date().toISOString()
-      };
-      setDebugInfo(info);
-      console.log('디버그 정보 (최적화됨):', info);
+      // 디버그 정보 수집 완전 비활성화
+      setDebugInfo(null);
+      console.log('디버그 시스템 완전 비활성화');
     };
 
     setupDebuggingAndOverlay();
@@ -1203,50 +1196,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Phase 5: 디버깅 정보 표시 (개발 환경에서만) */}
-      {debugInfo && (window.location.hostname === 'localhost' || window.location.hostname.includes('vercel.app')) && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: '10px',
-            right: '10px',
-            background: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            padding: '10px',
-            borderRadius: '8px',
-            fontSize: '10px',
-            fontFamily: 'monospace',
-            zIndex: 9999,
-            maxWidth: '250px',
-            maxHeight: '200px',
-            overflow: 'auto',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
-          }}
-        >
-          <div style={{ fontWeight: 'bold', marginBottom: '5px', color: '#00ff00' }}>🔍 디버그 상태</div>
-          <div>노션 모바일: {debugInfo.isNotionMobile ? '✅' : '❌'}</div>
-          <div>iframe: {debugInfo.isInIframe ? '✅' : '❌'}</div>
-          <div>로딩 단계: {debugInfo.progressiveStage}/3</div>
-          <div>사용자 상호작용: {debugInfo.userInteracted ? '✅' : '❌'}</div>
-          <div>리소스 로딩: {debugInfo.heavyResourcesLoaded ? '✅' : '❌'}</div>
-          <div>iframe 높이: {debugInfo.iframeHeight}px</div>
-          <button 
-            onClick={() => setDebugInfo(null)}
-            style={{
-              marginTop: '5px',
-              background: '#333',
-              color: 'white',
-              border: 'none',
-              padding: '2px 6px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontSize: '9px'
-            }}
-          >
-            닫기
-          </button>
-        </div>
-      )}
 
     {/* Phase 5: 에러 상태 표시 제거됨 (프로덕션 환경) */}
     </div>
