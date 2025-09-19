@@ -338,8 +338,10 @@ export default function Home() {
           // 사용자 데이터 불러오기는 백그라운드에서 처리
           setTimeout(async () => {
             try {
-              await loadProfileData(userResult.user.id);
-              console.log('프로필 데이터 로딩 완료');
+              if (userResult.user?.id) {
+                await loadProfileData(userResult.user.id);
+                console.log('프로필 데이터 로딩 완료');
+              }
             } catch (error) {
               console.error('프로필 데이터 로딩 실패:', error);
             }
