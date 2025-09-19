@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText, UserProfile } from '../lib/supabase';
+import { signUp, signIn, signOut, getCurrentUser, getUserProfile, saveUserProfile, updateProfileName, updateFirstText, updateSecondText, UserProfile, supabase } from '../lib/supabase';
 
 export default function Home() {
   const [texts, setTexts] = useState({
@@ -352,19 +352,29 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
-    const result = await signOut();
-    if (result.success) {
-      setCurrentUser(null);
-      // 로그아웃 시 로컬 상태 초기화
-      setTexts({
-        first: '문구를 입력해 주세요 ♡',
-        second: '문구를 입력해 주세요 ♡'
-      });
-      setProfileName('♡⸝⸝');
-      setButtonColor('#FFD0D8');
-      setSavedUrl('');
-      setAvatarImage(null);
-      setBannerImage(null);
+    try {
+      const result = await signOut();
+      if (result.success) {
+        // 로그아웃 시 로컬 상태 초기화
+        setTexts({
+          first: '문구를 입력해 주세요 ♡',
+          second: '문구를 입력해 주세요 ♡'
+        });
+        setProfileName('♡⸝⸝');
+        setButtonColor('#FFD0D8');
+        setSavedUrl('');
+        setAvatarImage(null);
+        setBannerImage(null);
+        setText('');
+        setHyperlink('');
+        
+        // 세션 완전히 제거
+        await supabase.auth.signOut();
+        
+        console.log('로그아웃 완료');
+      }
+    } catch (error) {
+      console.error('로그아웃 중 오류:', error);
     }
   };
 
@@ -677,6 +687,27 @@ export default function Home() {
     };
 
     checkUserAndLoadData();
+
+    // Supabase 세션 변경 감지 (로그인 상태 유지)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.id);
+      
+      if (event === 'SIGNED_IN' && session?.user) {
+        setCurrentUser(session.user);
+        await loadProfileData(session.user.id);
+      } else if (event === 'SIGNED_OUT') {
+        setCurrentUser(null);
+        setIsProfileLoading(false);
+      } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+        setCurrentUser(session.user);
+        // 토큰 갱신 시에도 사용자 데이터 유지
+      }
+    });
+
+    // 컴포넌트 언마운트 시 구독 해제
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // 컴포넌트 언마운트 시 타이머 정리

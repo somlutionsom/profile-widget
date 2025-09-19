@@ -10,7 +10,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: false // URL 세션 감지 비활성화로 성능 향상
+    detectSessionInUrl: true, // URL 세션 감지 활성화로 로그인 상태 유지
+    flowType: 'pkce' // PKCE 플로우로 보안 강화
   },
   global: {
     headers: { 
