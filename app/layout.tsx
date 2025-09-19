@@ -115,43 +115,7 @@ export default function RootLayout({
                 // 로딩 인디케이터 추가
                 const loadingIndicator = document.createElement('div');
                 loadingIndicator.id = 'progressive-loading-indicator';
-                loadingIndicator.innerHTML = `
-                  <div style="
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: rgba(255, 255, 255, 0.95);
-                    padding: 20px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                    z-index: 10000;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                    text-align: center;
-                    min-width: 200px;
-                  ">
-                    <div style="
-                      width: 40px;
-                      height: 40px;
-                      border: 3px solid #f3f3f3;
-                      border-top: 3px solid #FFD0D8;
-                      border-radius: 50%;
-                      animation: spin 1s linear infinite;
-                      margin: 0 auto 15px;
-                    "></div>
-                    <div style="
-                      color: #333;
-                      font-size: 14px;
-                      font-weight: 500;
-                    ">프로필 위젯 로딩 중...</div>
-                  </div>
-                  <style>
-                    @keyframes spin {
-                      0% { transform: rotate(0deg); }
-                      100% { transform: rotate(360deg); }
-                    }
-                  </style>
-                `;
+                loadingIndicator.innerHTML = '<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 255, 255, 0.95); padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); z-index: 10000; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', sans-serif; text-align: center; min-width: 200px;"><div style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #FFD0D8; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px;"></div><div style="color: #333; font-size: 14px; font-weight: 500;">프로필 위젯 로딩 중...</div></div><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>';
                 document.body.appendChild(loadingIndicator);
 
                 // 2단계: 1초 후 주요 콘텐츠 렌더링
