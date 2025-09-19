@@ -85,10 +85,13 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <meta httpEquiv="origin-trial" content="*" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="og:type" content="website" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
         <meta name="theme-color" content="#FFD0D8" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Profile Widget" />
         <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
