@@ -61,6 +61,34 @@ export default function Home() {
   const [userInteracted, setUserInteracted] = useState(false);
   const [heavyResourcesLoaded, setHeavyResourcesLoaded] = useState(false);
 
+  // Phase 3: iframe 통신 상태
+  const [isInIframe, setIsInIframe] = useState(false);
+  const [iframeHeight, setIframeHeight] = useState(0);
+
+  // Phase 3: iframe 통신 함수들
+  const sendHeightUpdate = () => {
+    if (isInIframe && (window as any).iframeBridge?.isActive) {
+      const height = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight
+      );
+      
+      const message = {
+        type: 'resize',
+        height: height,
+        source: 'profile-widget',
+        timestamp: Date.now(),
+        trigger: 'user-interaction'
+      };
+      
+      window.parent.postMessage(message, '*');
+      setIframeHeight(height);
+      console.log('사용자 인터랙션으로 인한 높이 업데이트:', message);
+    }
+  };
+
   // Phase 2: 사용자 인터랙션 감지 및 무거운 리소스 로딩
   const handleUserInteraction = () => {
     if (!userInteracted) {
@@ -75,6 +103,11 @@ export default function Home() {
         }, 100);
       }
     }
+    
+    // Phase 3: 사용자 인터랙션 후 높이 업데이트
+    setTimeout(() => {
+      sendHeightUpdate();
+    }, 100);
   };
 
   const handleEdit = (key: 'first' | 'second') => {
@@ -465,6 +498,25 @@ export default function Home() {
       }
     };
 
+    // Phase 3: iframe 환경 감지 및 통신 설정
+    const checkIframeEnvironment = () => {
+      const inIframe = window.parent !== window || 
+                      document.referrer.includes('notion') ||
+                      window.location !== window.parent.location ||
+                      window.frameElement !== null;
+      
+      setIsInIframe(inIframe);
+      
+      if (inIframe) {
+        console.log('iframe 환경이 감지되었습니다. iframe 통신을 활성화합니다.');
+        
+        // iframe 환경에서는 초기 높이 측정 및 전송
+        setTimeout(() => {
+          sendHeightUpdate();
+        }, 500);
+      }
+    };
+
     // 오늘 날짜를 가져와서 버튼에 표시
     const today = new Date();
     const day = today.getDate().toString().padStart(2, '0');
@@ -495,6 +547,9 @@ export default function Home() {
     // 노션 모바일 환경 체크
     checkNotionMobile();
 
+    // Phase 3: iframe 환경 체크
+    checkIframeEnvironment();
+
     // 사용자 로그인 상태 확인 및 데이터 불러오기 (최적화됨)
     const checkUserAndLoadData = async () => {
       try {
@@ -523,6 +578,23 @@ export default function Home() {
       }
     };
   }, [longPressTimer]);
+
+  // Phase 3: 상태 변경 시 iframe 높이 업데이트
+  useEffect(() => {
+    if (isInIframe) {
+      // 텍스트 변경, 이미지 변경, 팝업 상태 변경 등으로 인한 높이 변화 감지
+      const timeoutId = setTimeout(() => {
+        sendHeightUpdate();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    texts, profileName, buttonColor, savedUrl, 
+    showColorPalette, editingName, editingUrl, 
+    showLoginPopup, avatarImage, bannerImage,
+    editing, editValues, isInIframe
+  ]);
 
   // 수동 저장 함수 (최적화됨)
   const handleManualSave = async () => {
@@ -568,7 +640,7 @@ export default function Home() {
 
   return (
     <div 
-      className={`main-container ${isNotionMobile ? 'notion-mobile-optimized' : ''}`}
+      className={`main-container ${isNotionMobile ? 'notion-mobile-optimized' : ''} ${isInIframe ? 'iframe-embedded' : ''}`}
       style={{
         minHeight: '100vh',
         display: 'flex',
@@ -587,6 +659,13 @@ export default function Home() {
           transform: 'translateZ(0)', // GPU 가속 활성화
           backfaceVisibility: 'hidden', // 렌더링 최적화
           perspective: '1000px' // 3D 컨텍스트 생성
+        }),
+        // Phase 3: iframe 환경에서 추가 최적화
+        ...(isInIframe && {
+          overflow: 'visible', // iframe에서 콘텐츠가 잘리지 않도록
+          position: 'static', // iframe 내에서 정적 위치
+          transform: 'translateZ(0)', // GPU 가속
+          willChange: 'transform' // 성능 최적화
         })
       }}
     >

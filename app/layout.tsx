@@ -87,7 +87,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{
           __html: `
-            // 노션 모바일 감지 스크립트 (최상단 실행)
+            // 노션 모바일 감지 및 iframe 통신 브릿지 (최상단 실행)
             (function() {
               const isNotionMobile = /Notion|Mobile/i.test(navigator.userAgent) && window.innerWidth < 768;
               
@@ -106,6 +106,173 @@ export default function RootLayout({
               } else {
                 window.isNotionMobile = false;
               }
+
+              // Phase 3: iframe 통신 브릿지
+              (function() {
+                console.log('iframe 통신 브릿지를 초기화합니다.');
+                
+                // iframe 환경 감지
+                const isInIframe = window.parent !== window;
+                
+                if (isInIframe) {
+                  console.log('iframe 환경이 감지되었습니다. 부모 프레임과 통신을 시작합니다.');
+                  
+                  // iframe 통신 상태 플래그
+                  window.iframeBridge = {
+                    isActive: true,
+                    parentOrigin: '*',
+                    messageQueue: []
+                  };
+
+                  // 초기 로드 완료 메시지 전송
+                  const sendLoadedMessage = () => {
+                    const height = Math.max(
+                      document.body.scrollHeight,
+                      document.documentElement.scrollHeight,
+                      document.body.offsetHeight,
+                      document.documentElement.offsetHeight,
+                      document.body.clientHeight,
+                      document.documentElement.clientHeight
+                    );
+                    
+                    const message = {
+                      type: 'loaded',
+                      height: height,
+                      source: 'profile-widget',
+                      timestamp: Date.now()
+                    };
+                    
+                    window.parent.postMessage(message, '*');
+                    console.log('로드 완료 메시지 전송:', message);
+                  };
+
+                  // 높이 변경 감지 및 자동 조정
+                  const setupResizeObserver = () => {
+                    if (typeof ResizeObserver !== 'undefined') {
+                      const resizeObserver = new ResizeObserver(() => {
+                        const height = Math.max(
+                          document.body.scrollHeight,
+                          document.documentElement.scrollHeight,
+                          document.body.offsetHeight,
+                          document.documentElement.offsetHeight,
+                          document.body.clientHeight,
+                          document.documentElement.clientHeight
+                        );
+                        
+                        const message = {
+                          type: 'resize',
+                          height: height,
+                          source: 'profile-widget',
+                          timestamp: Date.now()
+                        };
+                        
+                        window.parent.postMessage(message, '*');
+                        console.log('크기 변경 메시지 전송:', message);
+                      });
+                      
+                      resizeObserver.observe(document.body);
+                      resizeObserver.observe(document.documentElement);
+                      
+                      console.log('ResizeObserver가 설정되었습니다.');
+                    } else {
+                      console.warn('ResizeObserver를 사용할 수 없습니다. 폴백 모드로 전환합니다.');
+                      
+                      // ResizeObserver 폴백: 주기적 높이 체크
+                      setInterval(() => {
+                        const currentHeight = Math.max(
+                          document.body.scrollHeight,
+                          document.documentElement.scrollHeight
+                        );
+                        
+                        if (window.iframeBridge.lastHeight !== currentHeight) {
+                          window.iframeBridge.lastHeight = currentHeight;
+                          
+                          const message = {
+                            type: 'resize',
+                            height: currentHeight,
+                            source: 'profile-widget',
+                            timestamp: Date.now()
+                          };
+                          
+                          window.parent.postMessage(message, '*');
+                          console.log('폴백 크기 변경 메시지 전송:', message);
+                        }
+                      }, 500);
+                    }
+                  };
+
+                  // 부모로부터 메시지 수신
+                  const handleParentMessage = (event) => {
+                    if (event.data && event.data.source === 'notion') {
+                      console.log('부모 프레임으로부터 메시지 수신:', event.data);
+                      
+                      switch (event.data.type) {
+                        case 'ping':
+                          // 핑 메시지에 대한 응답
+                          window.parent.postMessage({
+                            type: 'pong',
+                            source: 'profile-widget',
+                            timestamp: Date.now()
+                          }, '*');
+                          break;
+                          
+                        case 'requestHeight':
+                          // 높이 요청에 대한 응답
+                          const height = Math.max(
+                            document.body.scrollHeight,
+                            document.documentElement.scrollHeight
+                          );
+                          
+                          window.parent.postMessage({
+                            type: 'heightResponse',
+                            height: height,
+                            source: 'profile-widget',
+                            timestamp: Date.now()
+                          }, '*');
+                          break;
+                      }
+                    }
+                  };
+
+                  // 이벤트 리스너 등록
+                  window.addEventListener('message', handleParentMessage);
+                  
+                  // DOM이 준비되면 초기화
+                  if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                      sendLoadedMessage();
+                      setupResizeObserver();
+                    });
+                  } else {
+                    sendLoadedMessage();
+                    setupResizeObserver();
+                  }
+                  
+                  // 윈도우 리사이즈 이벤트도 감지
+                  window.addEventListener('resize', () => {
+                    setTimeout(() => {
+                      const height = Math.max(
+                        document.body.scrollHeight,
+                        document.documentElement.scrollHeight
+                      );
+                      
+                      const message = {
+                        type: 'resize',
+                        height: height,
+                        source: 'profile-widget',
+                        timestamp: Date.now()
+                      };
+                      
+                      window.parent.postMessage(message, '*');
+                      console.log('윈도우 리사이즈 메시지 전송:', message);
+                    }, 100);
+                  });
+                  
+                } else {
+                  console.log('일반 브라우저 환경입니다. iframe 통신을 비활성화합니다.');
+                  window.iframeBridge = { isActive: false };
+                }
+              })();
             })();
           `
         }} />
