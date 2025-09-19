@@ -100,6 +100,25 @@ html, body {
   overflow-x: hidden !important;
 }
 
+/* 반응형 패딩 조정 - 작은 화면에서 좌우 간격 줄이기 */
+@media screen and (max-width: 768px) {
+  .main-container {
+    padding: 5px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .main-container {
+    padding: 2px !important;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .main-container {
+    padding: 1px !important;
+  }
+}
+
 /* Outer Container - 외부 박스 (고정 크기) */
 .outer-container {
   background: white;

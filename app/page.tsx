@@ -1009,7 +1009,14 @@ export default function Home() {
           </div>
           
           {/* Login/Logout Text */}
-          <div style={{marginTop: '36px', paddingBottom: '20px', display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 1000}}>
+          <div style={{
+            marginTop: '20px', 
+            paddingBottom: '20px', 
+            display: 'flex', 
+            justifyContent: 'center', 
+            position: 'relative', 
+            zIndex: 1000
+          }}>
             <span 
               onClick={currentUser ? handleLogout : handleLoginPopupOpen}
               title={currentUser ? "로그아웃" : "로그인"}
@@ -1017,7 +1024,7 @@ export default function Home() {
                 fontSize: '12px', 
                 color: '#666', 
                 cursor: 'pointer', 
-                fontFamily: 'Pretendard, sans-serif',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
                 fontWeight: '300',
                 transition: 'color 0.2s ease'
               }}
