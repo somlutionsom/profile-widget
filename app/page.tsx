@@ -101,15 +101,10 @@ export default function Home() {
   const handleUserInteraction = () => {
     if (!userInteracted) {
       setUserInteracted(true);
-      console.log('사용자 인터랙션 감지됨. 무거운 리소스 로딩을 시작합니다.');
+      console.log('사용자 인터랙션 감지됨.');
       
-      // 노션 모바일 환경에서만 지연 로딩 적용
-      if (isNotionMobile && !heavyResourcesLoaded) {
-        setTimeout(() => {
-          setHeavyResourcesLoaded(true);
-          console.log('무거운 리소스 로딩 완료');
-        }, 100);
-      }
+      // 즉시 무거운 리소스 로딩 완료로 설정 (성능 향상)
+      setHeavyResourcesLoaded(true);
     }
     
     // Phase 4: 점진적 로딩 중이면 3단계로 강제 진행
@@ -122,10 +117,8 @@ export default function Home() {
       window.dispatchEvent(new CustomEvent('progressive-loading-complete'));
     }
     
-    // Phase 3: 사용자 인터랙션 후 높이 업데이트
-    setTimeout(() => {
-      sendHeightUpdate();
-    }, 100);
+    // Phase 3: 사용자 인터랙션 후 높이 업데이트 (즉시 실행)
+    sendHeightUpdate();
   };
 
   const handleEdit = (key: 'first' | 'second') => {
@@ -467,24 +460,28 @@ export default function Home() {
     };
     
     try {
-      // 타임아웃 설정으로 빠른 실패 처리 (3초)
+      console.log('프로필 저장 시작...', profileData);
+      
+      // 타임아웃을 10초로 늘림
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('저장 시간 초과')), 3000);
+        setTimeout(() => reject(new Error('저장 시간 초과')), 10000);
       });
       
       const savePromise = saveUserProfile(profileData);
       const result = await Promise.race([savePromise, timeoutPromise]) as any;
       
       if (!result.success) {
-        throw new Error(result.error);
+        throw new Error(result.error || '저장 실패');
       }
+      
+      console.log('프로필 저장 성공:', result);
     } catch (error) {
       console.error(`프로필 저장 실패 (시도 ${retryCount + 1}):`, error);
       
-      // 재시도 로직 단순화 (최대 1회, 더 빠른 재시도)
-      if (retryCount < 1 && (error instanceof Error && (error.message.includes('timeout') || error.message.includes('시간 초과')))) {
+      // 재시도 로직 개선 (최대 2회)
+      if (retryCount < 2) {
         console.log('재시도 중...');
-        await new Promise(resolve => setTimeout(resolve, 300)); // 재시도 간격 단축 (300ms)
+        await new Promise(resolve => setTimeout(resolve, 1000)); // 재시도 간격 1초
         return saveProfileData(retryCount + 1);
       }
       
@@ -587,86 +584,31 @@ export default function Home() {
     // Phase 3: iframe 환경 체크
     checkIframeEnvironment();
 
-    // Phase 4: 점진적 로딩 이벤트 리스너 설정
+    // Phase 4: 점진적 로딩 비활성화 (성능 향상)
     const setupProgressiveLoading = () => {
-      if (isNotionMobile) {
-        setIsProgressiveLoading(true);
-        
-        // 점진적 로딩 완료 이벤트 리스너
-        const handleProgressiveLoadingComplete = () => {
-          console.log('점진적 로딩이 완료되었습니다.');
-          setIsProgressiveLoading(false);
-          setProgressiveStage(3);
-        };
-
-        // 단계별 진행 상황 체크
-        const checkProgressiveStage = () => {
-          if ((window as any).progressiveLoadingStage2 && progressiveStage < 2) {
-            setProgressiveStage(2);
-            console.log('2단계로 진행: 주요 콘텐츠 렌더링');
-          }
-          if ((window as any).progressiveLoadingStage3 && progressiveStage < 3) {
-            setProgressiveStage(3);
-            console.log('3단계로 진행: 모든 리소스 로딩 완료');
-          }
-        };
-
-        // 주기적으로 진행 상황 체크
-        const stageInterval = setInterval(checkProgressiveStage, 100);
-        
-        // 완료 이벤트 리스너 등록
-        window.addEventListener('progressive-loading-complete', handleProgressiveLoadingComplete);
-        
-        // 정리 함수
-        return () => {
-          clearInterval(stageInterval);
-          window.removeEventListener('progressive-loading-complete', handleProgressiveLoadingComplete);
-        };
-      } else {
-        // 일반 환경에서는 즉시 3단계로 설정
-        setProgressiveStage(3);
-        setIsProgressiveLoading(false);
-      }
+      // 모든 환경에서 즉시 완료로 설정
+      setProgressiveStage(3);
+      setIsProgressiveLoading(false);
+      console.log('점진적 로딩 비활성화 - 즉시 완료');
     };
 
     setupProgressiveLoading();
 
-    // Phase 5: 로딩 오버레이 및 디버깅 설정
+    // Phase 5: 로딩 오버레이 및 디버깅 설정 (최적화됨)
     const setupDebuggingAndOverlay = () => {
-      if (isNotionMobile) {
-        // 로딩 오버레이 표시
-        setShowLoadingOverlay(true);
-        
-        // 3초 후 로딩 오버레이 숨김
-        setTimeout(() => {
-          setShowLoadingOverlay(false);
-        }, 3000);
-        
-        // 디버그 정보 수집
-        const collectDebugInfo = () => {
-          const info = {
-            userAgent: navigator.userAgent,
-            isNotionMobile: isNotionMobile,
-            isInIframe: isInIframe,
-            progressiveStage: progressiveStage,
-            isProgressiveLoading: isProgressiveLoading,
-            userInteracted: userInteracted,
-            heavyResourcesLoaded: heavyResourcesLoaded,
-            iframeHeight: iframeHeight,
-            timestamp: new Date().toISOString(),
-            performance: {
-              navigationStart: performance.timing?.navigationStart || 0,
-              loadEventEnd: performance.timing?.loadEventEnd || 0,
-              domContentLoaded: performance.timing?.domContentLoadedEventEnd || 0
-            }
-          };
-          setDebugInfo(info);
-          console.log('디버그 정보 수집 완료:', info);
-        };
-        
-        // 2초 후 디버그 정보 수집
-        setTimeout(collectDebugInfo, 2000);
-      }
+      // 로딩 오버레이 비활성화 (성능 향상)
+      setShowLoadingOverlay(false);
+      
+      // 간단한 디버그 정보만 수집
+      const info = {
+        userAgent: navigator.userAgent,
+        isNotionMobile: isNotionMobile,
+        isInIframe: isInIframe,
+        progressiveStage: 3, // 즉시 완료
+        timestamp: new Date().toISOString()
+      };
+      setDebugInfo(info);
+      console.log('디버그 정보 (최적화됨):', info);
     };
 
     setupDebuggingAndOverlay();
@@ -758,7 +700,7 @@ export default function Home() {
         button.style.backgroundColor = '#ffa726';
       }
       
-      // 즉시 저장 실행 (병렬 처리 제거)
+      // 저장 실행 (타임아웃 10초로 늘림)
       await saveProfileData();
       
       if (button) {
@@ -778,7 +720,7 @@ export default function Home() {
           button.textContent = originalText;
           button.style.backgroundColor = '';
         }
-      }, 400); // 시간 더 단축
+      }, 800); // 피드백 시간 늘림
     }
   };
 
