@@ -76,8 +76,42 @@ export default function CodePenEmbed({ params }: { params: { id: string } }) {
   // CodePen 위장을 위한 상태
   const [codepenId] = useState(params.id);
 
-  // 모든 핸들러 함수들을 여기에 복사 (기존 page.tsx와 동일)
-  // ... (기존 핸들러 함수들 생략 - 너무 길어서 생략)
+  // 핸들러 함수들 (기존 page.tsx와 동일)
+  const handleUserInteraction = async () => {
+    if (!userInteracted) {
+      setUserInteracted(true);
+      console.log('사용자 상호작용 감지 - 무거운 리소스 로딩 시작');
+      
+      // 무거운 리소스 로딩 시뮬레이션
+      setTimeout(() => {
+        setHeavyResourcesLoaded(true);
+        console.log('무거운 리소스 로딩 완료');
+        
+        // 높이 업데이트
+        sendHeightUpdate();
+      }, 500);
+    }
+  };
+
+  const sendHeightUpdate = () => {
+    if (isInIframe && typeof window !== 'undefined') {
+      const height = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        window.innerHeight
+      );
+      
+      setIframeHeight(height);
+      
+      // 부모 프레임에 높이 정보 전송
+      window.parent.postMessage({
+        type: 'resize',
+        height: height,
+        source: 'codepen-embed',
+        timestamp: Date.now()
+      }, '*');
+    }
+  };
 
   useEffect(() => {
     // CodePen 위장 초기화
