@@ -1174,3 +1174,84 @@ html, body {
   z-index: 1000 !important;
   overflow: visible !important;
 }
+
+/* Phase 4: 점진적 렌더링 최적화 */
+.progressive-loading {
+  /* 점진적 로딩 중일 때 기본 스타일 */
+  opacity: 1 !important;
+  transition: opacity 0.3s ease-in-out !important;
+}
+
+.progressive-loading .main-container {
+  /* 점진적 로딩 중 메인 컨테이너 최적화 */
+  will-change: opacity !important;
+  backface-visibility: hidden !important;
+}
+
+/* 점진적 로딩 단계별 스타일 */
+.progressive-loading[data-stage="1"] {
+  /* 1단계: 최소 HTML + critical CSS */
+  opacity: 0.3 !important;
+}
+
+.progressive-loading[data-stage="2"] {
+  /* 2단계: 주요 콘텐츠 렌더링 */
+  opacity: 0.8 !important;
+  transition: opacity 0.5s ease-in-out !important;
+}
+
+.progressive-loading[data-stage="3"] {
+  /* 3단계: 모든 리소스 로딩 완료 */
+  opacity: 1 !important;
+  transition: opacity 0.3s ease-in-out !important;
+}
+
+/* 점진적 로딩 중 무거운 리소스 최적화 */
+.progressive-loading .color-palette,
+.progressive-loading .url-popup-overlay,
+.progressive-loading .login-popup-overlay {
+  /* 로딩 중에는 무거운 UI 요소 비활성화 */
+  display: none !important;
+}
+
+.progressive-loading[data-stage="3"] .color-palette,
+.progressive-loading[data-stage="3"] .url-popup-overlay,
+.progressive-loading[data-stage="3"] .login-popup-overlay {
+  /* 3단계에서 무거운 UI 요소 활성화 */
+  display: block !important;
+}
+
+/* 점진적 로딩 중 애니메이션 최적화 */
+.progressive-loading * {
+  /* 로딩 중에는 모든 애니메이션 비활성화 */
+  animation: none !important;
+  transition: opacity 0.3s ease-in-out !important;
+}
+
+.progressive-loading[data-stage="3"] * {
+  /* 3단계에서 애니메이션 활성화 */
+  animation: unset !important;
+  transition: unset !important;
+}
+
+/* 점진적 로딩 중 터치 최적화 */
+.progressive-loading button,
+.progressive-loading .clickable-text,
+.progressive-loading .clickable-name {
+  /* 로딩 중에는 터치 이벤트 최소화 */
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+}
+
+/* 점진적 로딩 중 iframe 통신 최적화 */
+.progressive-loading .iframe-embedded {
+  /* 로딩 중에는 높이 변경을 최소화 */
+  min-height: 600px !important;
+  height: auto !important;
+}
+
+.progressive-loading[data-stage="3"] .iframe-embedded {
+  /* 3단계에서 정상 높이 계산 */
+  min-height: auto !important;
+  height: auto !important;
+}

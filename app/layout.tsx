@@ -103,8 +103,95 @@ export default function RootLayout({
                 // 성능 최적화를 위한 기본 설정
                 document.documentElement.style.setProperty('--animation-duration', '0.1s');
                 document.documentElement.style.setProperty('--transition-duration', '0.1s');
+
+                // Phase 4: 점진적 렌더링 전략
+                console.log('점진적 렌더링 전략을 시작합니다.');
+                
+                // 1단계: 초기 로딩 껍데기 (즉시 실행)
+                document.body.style.visibility = 'hidden';
+                document.body.style.opacity = '0';
+                document.body.style.transition = 'opacity 0.3s ease-in-out';
+                
+                // 로딩 인디케이터 추가
+                const loadingIndicator = document.createElement('div');
+                loadingIndicator.id = 'progressive-loading-indicator';
+                loadingIndicator.innerHTML = `
+                  <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(255, 255, 255, 0.95);
+                    padding: 20px;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+                    z-index: 10000;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    text-align: center;
+                    min-width: 200px;
+                  ">
+                    <div style="
+                      width: 40px;
+                      height: 40px;
+                      border: 3px solid #f3f3f3;
+                      border-top: 3px solid #FFD0D8;
+                      border-radius: 50%;
+                      animation: spin 1s linear infinite;
+                      margin: 0 auto 15px;
+                    "></div>
+                    <div style="
+                      color: #333;
+                      font-size: 14px;
+                      font-weight: 500;
+                    ">프로필 위젯 로딩 중...</div>
+                  </div>
+                  <style>
+                    @keyframes spin {
+                      0% { transform: rotate(0deg); }
+                      100% { transform: rotate(360deg); }
+                    }
+                  </style>
+                `;
+                document.body.appendChild(loadingIndicator);
+
+                // 2단계: 1초 후 주요 콘텐츠 렌더링
+                setTimeout(() => {
+                  console.log('2단계: 주요 콘텐츠 렌더링 시작');
+                  
+                  // 로딩 인디케이터 제거
+                  const indicator = document.getElementById('progressive-loading-indicator');
+                  if (indicator) {
+                    indicator.remove();
+                  }
+                  
+                  // body 표시
+                  document.body.style.visibility = 'visible';
+                  document.body.style.opacity = '1';
+                  
+                  // 주요 콘텐츠 로딩 완료 플래그 설정
+                  window.progressiveLoadingStage2 = true;
+                  
+                  console.log('2단계 완료: 주요 콘텐츠가 렌더링되었습니다.');
+                }, 1000);
+
+                // 3단계: 2초 후 나머지 리소스 로드
+                setTimeout(() => {
+                  console.log('3단계: 나머지 리소스 로딩 시작');
+                  
+                  // 나머지 리소스 로딩 완료 플래그 설정
+                  window.progressiveLoadingStage3 = true;
+                  
+                  // 모든 리소스 로딩 완료 이벤트 발생
+                  window.dispatchEvent(new CustomEvent('progressive-loading-complete'));
+                  
+                  console.log('3단계 완료: 모든 리소스가 로딩되었습니다.');
+                }, 2000);
+                
               } else {
                 window.isNotionMobile = false;
+                // 일반 환경에서는 즉시 모든 단계 완료
+                window.progressiveLoadingStage2 = true;
+                window.progressiveLoadingStage3 = true;
               }
 
               // Phase 3: iframe 통신 브릿지

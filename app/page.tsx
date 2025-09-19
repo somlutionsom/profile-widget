@@ -65,6 +65,10 @@ export default function Home() {
   const [isInIframe, setIsInIframe] = useState(false);
   const [iframeHeight, setIframeHeight] = useState(0);
 
+  // Phase 4: 점진적 렌더링 상태
+  const [progressiveStage, setProgressiveStage] = useState(1);
+  const [isProgressiveLoading, setIsProgressiveLoading] = useState(false);
+
   // Phase 3: iframe 통신 함수들
   const sendHeightUpdate = () => {
     if (isInIframe && (window as any).iframeBridge?.isActive) {
@@ -102,6 +106,16 @@ export default function Home() {
           console.log('무거운 리소스 로딩 완료');
         }, 100);
       }
+    }
+    
+    // Phase 4: 점진적 로딩 중이면 3단계로 강제 진행
+    if (isProgressiveLoading && progressiveStage < 3) {
+      console.log('사용자 인터랙션으로 인해 점진적 로딩을 가속화합니다.');
+      setProgressiveStage(3);
+      setIsProgressiveLoading(false);
+      
+      // 강제로 완료 이벤트 발생
+      window.dispatchEvent(new CustomEvent('progressive-loading-complete'));
     }
     
     // Phase 3: 사용자 인터랙션 후 높이 업데이트
@@ -550,6 +564,50 @@ export default function Home() {
     // Phase 3: iframe 환경 체크
     checkIframeEnvironment();
 
+    // Phase 4: 점진적 로딩 이벤트 리스너 설정
+    const setupProgressiveLoading = () => {
+      if (isNotionMobile) {
+        setIsProgressiveLoading(true);
+        
+        // 점진적 로딩 완료 이벤트 리스너
+        const handleProgressiveLoadingComplete = () => {
+          console.log('점진적 로딩이 완료되었습니다.');
+          setIsProgressiveLoading(false);
+          setProgressiveStage(3);
+        };
+
+        // 단계별 진행 상황 체크
+        const checkProgressiveStage = () => {
+          if ((window as any).progressiveLoadingStage2 && progressiveStage < 2) {
+            setProgressiveStage(2);
+            console.log('2단계로 진행: 주요 콘텐츠 렌더링');
+          }
+          if ((window as any).progressiveLoadingStage3 && progressiveStage < 3) {
+            setProgressiveStage(3);
+            console.log('3단계로 진행: 모든 리소스 로딩 완료');
+          }
+        };
+
+        // 주기적으로 진행 상황 체크
+        const stageInterval = setInterval(checkProgressiveStage, 100);
+        
+        // 완료 이벤트 리스너 등록
+        window.addEventListener('progressive-loading-complete', handleProgressiveLoadingComplete);
+        
+        // 정리 함수
+        return () => {
+          clearInterval(stageInterval);
+          window.removeEventListener('progressive-loading-complete', handleProgressiveLoadingComplete);
+        };
+      } else {
+        // 일반 환경에서는 즉시 3단계로 설정
+        setProgressiveStage(3);
+        setIsProgressiveLoading(false);
+      }
+    };
+
+    setupProgressiveLoading();
+
     // 사용자 로그인 상태 확인 및 데이터 불러오기 (최적화됨)
     const checkUserAndLoadData = async () => {
       try {
@@ -640,7 +698,8 @@ export default function Home() {
 
   return (
     <div 
-      className={`main-container ${isNotionMobile ? 'notion-mobile-optimized' : ''} ${isInIframe ? 'iframe-embedded' : ''}`}
+      className={`main-container ${isNotionMobile ? 'notion-mobile-optimized' : ''} ${isInIframe ? 'iframe-embedded' : ''} ${isProgressiveLoading ? 'progressive-loading' : ''}`}
+      data-stage={progressiveStage}
       style={{
         minHeight: '100vh',
         display: 'flex',
@@ -666,6 +725,11 @@ export default function Home() {
           position: 'static', // iframe 내에서 정적 위치
           transform: 'translateZ(0)', // GPU 가속
           willChange: 'transform' // 성능 최적화
+        }),
+        // Phase 4: 점진적 로딩 중일 때 추가 스타일
+        ...(isProgressiveLoading && {
+          opacity: progressiveStage >= 2 ? 1 : 0.3,
+          transition: 'opacity 0.5s ease-in-out'
         })
       }}
     >
