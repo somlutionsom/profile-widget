@@ -85,6 +85,30 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // 노션 모바일 감지 스크립트 (최상단 실행)
+            (function() {
+              const isNotionMobile = /Notion|Mobile/i.test(navigator.userAgent) && window.innerWidth < 768;
+              
+              if (isNotionMobile) {
+                console.log('노션 모바일 환경이 감지되었습니다. 최적화 모드를 적용합니다.');
+                
+                // 노션 모바일 환경 플래그 설정
+                window.isNotionMobile = true;
+                
+                // CSS 최적화 적용
+                document.documentElement.classList.add('notion-mobile-optimized');
+                
+                // 성능 최적화를 위한 기본 설정
+                document.documentElement.style.setProperty('--animation-duration', '0.1s');
+                document.documentElement.style.setProperty('--transition-duration', '0.1s');
+              } else {
+                window.isNotionMobile = false;
+              }
+            })();
+          `
+        }} />
         <meta httpEquiv="origin-trial" content="*" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta property="og:type" content="website" />

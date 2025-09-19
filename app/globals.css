@@ -1038,3 +1038,58 @@ html, body {
     will-change: transform !important;
   }
 }
+
+/* Phase 2: 노션 모바일 최적화 스타일 */
+.notion-mobile-optimized {
+  /* 애니메이션 성능 최적화 */
+  --animation-duration: 0.1s !important;
+  --transition-duration: 0.1s !important;
+}
+
+.notion-mobile-optimized * {
+  /* 노션 모바일 환경에서 애니메이션 최소화 */
+  animation-duration: var(--animation-duration, 0.1s) !important;
+  transition-duration: var(--transition-duration, 0.1s) !important;
+}
+
+.notion-mobile-optimized .color-palette {
+  /* 컬러 팔레트 애니메이션 비활성화 */
+  animation: none !important;
+  transition: none !important;
+}
+
+.notion-mobile-optimized .color-option {
+  /* 컬러 옵션 애니메이션 비활성화 */
+  transition: none !important;
+  transform: none !important;
+}
+
+.notion-mobile-optimized .icon-button {
+  /* 아이콘 버튼 애니메이션 최적화 */
+  transition: none !important;
+}
+
+.notion-mobile-optimized .main-container {
+  /* GPU 가속 및 렌더링 최적화 */
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  perspective: 1000px !important;
+  will-change: transform !important;
+}
+
+/* 노션 모바일 환경에서 터치 최적화 */
+.notion-mobile-optimized button,
+.notion-mobile-optimized .clickable-text,
+.notion-mobile-optimized .clickable-name {
+  /* 터치 반응성 향상 */
+  touch-action: manipulation !important;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1) !important;
+  min-height: 48px !important;
+  min-width: 48px !important;
+}
+
+/* 노션 모바일 환경에서 스크롤 최적화 */
+.notion-mobile-optimized {
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+}

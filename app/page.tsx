@@ -56,7 +56,29 @@ export default function Home() {
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Phase 2: 노션 모바일 최적화 상태
+  const [isNotionMobile, setIsNotionMobile] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [heavyResourcesLoaded, setHeavyResourcesLoaded] = useState(false);
+
+  // Phase 2: 사용자 인터랙션 감지 및 무거운 리소스 로딩
+  const handleUserInteraction = () => {
+    if (!userInteracted) {
+      setUserInteracted(true);
+      console.log('사용자 인터랙션 감지됨. 무거운 리소스 로딩을 시작합니다.');
+      
+      // 노션 모바일 환경에서만 지연 로딩 적용
+      if (isNotionMobile && !heavyResourcesLoaded) {
+        setTimeout(() => {
+          setHeavyResourcesLoaded(true);
+          console.log('무거운 리소스 로딩 완료');
+        }, 100);
+      }
+    }
+  };
+
   const handleEdit = (key: 'first' | 'second') => {
+    handleUserInteraction(); // 사용자 인터랙션 감지
     setEditing(prev => ({ ...prev, [key]: true }));
     setEditValues(prev => ({ ...prev, [key]: texts[key] }));
   };
@@ -99,6 +121,7 @@ export default function Home() {
   };
 
   const handleAvatarClick = () => {
+    handleUserInteraction(); // 사용자 인터랙션 감지
     document.getElementById('avatar-input')?.click();
   };
 
@@ -114,10 +137,12 @@ export default function Home() {
   };
 
   const handleBannerClick = () => {
+    handleUserInteraction(); // 사용자 인터랙션 감지
     document.getElementById('banner-input')?.click();
   };
 
   const handleNameEdit = () => {
+    handleUserInteraction(); // 사용자 인터랙션 감지
     setEditingName(true);
     setEditNameValue(profileName);
   };
@@ -143,6 +168,7 @@ export default function Home() {
   };
 
   const handleButtonClick = () => {
+    handleUserInteraction(); // 사용자 인터랙션 감지
     setShowColorPalette(!showColorPalette);
   };
 
@@ -424,6 +450,21 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // Phase 2: 노션 모바일 환경 감지
+    const checkNotionMobile = () => {
+      const isNotionMobileEnv = (window as any).isNotionMobile || 
+                               (/Notion|Mobile/i.test(navigator.userAgent) && window.innerWidth < 768);
+      
+      setIsNotionMobile(isNotionMobileEnv);
+      
+      if (isNotionMobileEnv) {
+        console.log('노션 모바일 환경이 감지되었습니다. 최적화 모드를 적용합니다.');
+        
+        // 노션 모바일 환경에서는 즉시 무거운 리소스 로딩 (iframe 환경에서는 사용자 인터랙션을 기다리지 않음)
+        setHeavyResourcesLoaded(true);
+      }
+    };
+
     // 오늘 날짜를 가져와서 버튼에 표시
     const today = new Date();
     const day = today.getDate().toString().padStart(2, '0');
@@ -450,6 +491,9 @@ export default function Home() {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
     }
+
+    // 노션 모바일 환경 체크
+    checkNotionMobile();
 
     // 사용자 로그인 상태 확인 및 데이터 불러오기 (최적화됨)
     const checkUserAndLoadData = async () => {
@@ -524,7 +568,7 @@ export default function Home() {
 
   return (
     <div 
-      className="main-container"
+      className={`main-container ${isNotionMobile ? 'notion-mobile-optimized' : ''}`}
       style={{
         minHeight: '100vh',
         display: 'flex',
@@ -537,7 +581,13 @@ export default function Home() {
         boxSizing: 'border-box',
         position: 'relative',
         overflowX: 'hidden',
-        WebkitOverflowScrolling: 'touch'
+        WebkitOverflowScrolling: 'touch',
+        // 노션 모바일 환경에서 추가 최적화
+        ...(isNotionMobile && {
+          transform: 'translateZ(0)', // GPU 가속 활성화
+          backfaceVisibility: 'hidden', // 렌더링 최적화
+          perspective: '1000px' // 3D 컨텍스트 생성
+        })
       }}
     >
       {/* Outer Container */}
@@ -643,12 +693,24 @@ export default function Home() {
                 {dateString}
               </button>
               {showColorPalette && (
-                <div className="color-palette">
+                <div 
+                  className="color-palette"
+                  style={{
+                    // 노션 모바일 환경에서 애니메이션 최적화
+                    transition: isNotionMobile ? 'none' : 'all 0.3s ease',
+                    animation: isNotionMobile ? 'none' : undefined
+                  }}
+                >
                   {colorPalette.map((color, index) => (
                     <button
                       key={index}
                       className="color-option"
-                      style={{ backgroundColor: color }}
+                      style={{ 
+                        backgroundColor: color,
+                        // 노션 모바일 환경에서 애니메이션 최적화
+                        transition: isNotionMobile ? 'none' : 'all 0.2s ease',
+                        transform: isNotionMobile ? 'none' : undefined
+                      }}
                       onClick={() => handleColorSelect(color)}
                     />
                   ))}
@@ -671,8 +733,8 @@ export default function Home() {
               className="icon-button"
               style={{ 
                 backgroundColor: isLongPressing ? '#FF9FA8' : buttonColor,
-                transform: isLongPressing ? 'scale(0.95)' : 'scale(1)',
-                transition: 'all 0.1s ease'
+                transform: isLongPressing && !isNotionMobile ? 'scale(0.95)' : 'scale(1)',
+                transition: isNotionMobile ? 'none' : 'all 0.1s ease'
               }}
               onClick={handleUrlClick}
               onMouseDown={handleUrlMouseDown}
