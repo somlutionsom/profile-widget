@@ -352,27 +352,29 @@ export default function Home() {
   };
 
   const handleLogout = async () => {
+    console.log('로그아웃 시작');
     try {
-      const result = await signOut();
-      if (result.success) {
-        // 로그아웃 시 로컬 상태 초기화
-        setTexts({
-          first: '문구를 입력해 주세요 ♡',
-          second: '문구를 입력해 주세요 ♡'
-        });
-        setProfileName('♡⸝⸝');
-        setButtonColor('#FFD0D8');
-        setSavedUrl('');
-        setAvatarImage(null);
-        setBannerImage(null);
-        setText('');
-        setHyperlink('');
-        
-        // 세션 완전히 제거
-        await supabase.auth.signOut();
-        
-        console.log('로그아웃 완료');
+      // 먼저 로컬 상태 초기화
+      setTexts({
+        first: '문구를 입력해 주세요 ♡',
+        second: '문구를 입력해 주세요 ♡'
+      });
+      setProfileName('♡⸝⸝');
+      setButtonColor('#FFD0D8');
+      setSavedUrl('');
+      setAvatarImage(null);
+      setBannerImage(null);
+      setText('');
+      setHyperlink('');
+      setCurrentUser(null);
+      
+      // Supabase 로그아웃
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Supabase 로그아웃 오류:', error);
       }
+      
+      console.log('로그아웃 완료');
     } catch (error) {
       console.error('로그아웃 중 오류:', error);
     }
@@ -696,6 +698,7 @@ export default function Home() {
         setCurrentUser(session.user);
         await loadProfileData(session.user.id);
       } else if (event === 'SIGNED_OUT') {
+        // 로그아웃 시에는 setCurrentUser만 호출 (상태 초기화는 handleLogout에서 처리)
         setCurrentUser(null);
         setIsProfileLoading(false);
       } else if (event === 'TOKEN_REFRESHED' && session?.user) {
@@ -1057,7 +1060,16 @@ export default function Home() {
             zIndex: 1000
           }}>
             <span 
-              onClick={currentUser ? handleLogout : handleLoginPopupOpen}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('로그아웃 버튼 클릭됨, currentUser:', currentUser);
+                if (currentUser) {
+                  handleLogout();
+                } else {
+                  handleLoginPopupOpen();
+                }
+              }}
               title={currentUser ? "로그아웃" : "로그인"}
               style={{
                 fontSize: '12px', 
