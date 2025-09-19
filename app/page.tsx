@@ -321,23 +321,37 @@ export default function Home() {
     setLoginError('');
 
     try {
+      console.log('로그인 시도 중...');
       const result = isLogin 
         ? await signIn(loginEmail, loginPassword)
         : await signUp(loginEmail, loginPassword);
 
       if (result.success) {
+        console.log('로그인 성공, 사용자 정보 가져오는 중...');
         // 로그인/회원가입 성공
         const userResult = await getCurrentUser();
         if (userResult.success && userResult.user) {
           setCurrentUser(userResult.user);
-          // 사용자 데이터 불러오기
-          await loadProfileData(userResult.user.id);
+          console.log('사용자 정보 설정 완료, 팝업 닫기');
+          handleLoginPopupClose();
+          
+          // 사용자 데이터 불러오기는 백그라운드에서 처리
+          setTimeout(async () => {
+            try {
+              await loadProfileData(userResult.user.id);
+              console.log('프로필 데이터 로딩 완료');
+            } catch (error) {
+              console.error('프로필 데이터 로딩 실패:', error);
+            }
+          }, 100);
+        } else {
+          setLoginError('사용자 정보를 가져올 수 없습니다.');
         }
-        handleLoginPopupClose();
       } else {
         setLoginError(result.error || '오류가 발생했습니다.');
       }
     } catch (error) {
+      console.error('로그인 오류:', error);
       setLoginError('네트워크 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
@@ -492,9 +506,19 @@ export default function Home() {
   // 사용자 프로필 데이터 불러오기 함수 (최적화됨)
   const loadProfileData = async (userId: string) => {
     try {
-      const result = await getUserProfile(userId);
+      console.log('프로필 데이터 불러오기 시작...');
+      
+      // 타임아웃 설정 (5초)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('프로필 로딩 시간 초과')), 5000);
+      });
+      
+      const loadPromise = getUserProfile(userId);
+      const result = await Promise.race([loadPromise, timeoutPromise]) as any;
+      
       if (result.success && result.data) {
         const profile = result.data;
+        console.log('프로필 데이터 로딩 성공:', profile);
         
         // 배치로 상태 업데이트 (리렌더링 최소화)
         setProfileName(profile.profile_name || '♡⸝⸝');
@@ -508,6 +532,8 @@ export default function Home() {
         });
         setText(profile.text || '');
         setHyperlink(profile.hyperlink || '');
+      } else {
+        console.log('프로필 데이터가 없거나 로딩 실패');
       }
     } catch (error) {
       console.error('프로필 데이터 불러오기 중 예외 발생:', error);
