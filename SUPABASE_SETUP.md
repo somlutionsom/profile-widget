@@ -16,33 +16,65 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 Supabase 대시보드의 SQL Editor에서 `database_schema.sql` 파일의 내용을 실행하세요:
 
 ```sql
--- 사용자 프로필 테이블 생성
-CREATE TABLE IF NOT EXISTS user_profiles (
+-- 프로젝트명 접두사가 붙은 사용자 프로필 테이블 생성
+CREATE TABLE IF NOT EXISTS profile_widget_user_profiles (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  app_name TEXT DEFAULT 'profile-widget' NOT NULL,
+  profile_name TEXT DEFAULT '♡⸝⸝',
   button_color TEXT DEFAULT '#FFD0D8',
   avatar_image TEXT,
   banner_image TEXT,
   saved_url TEXT,
-  first_text TEXT DEFAULT 'somtudio-notion',
-  second_text TEXT DEFAULT '빠르게 완성하고 공유하기',
+  first_text TEXT DEFAULT '문구를 입력해 주세요 ♡',
+  second_text TEXT DEFAULT '문구를 입력해 주세요 ♡',
+  text TEXT,
+  hyperlink TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  UNIQUE(user_id)
+  UNIQUE(user_id, app_name)
 );
 
 -- RLS (Row Level Security) 정책 설정
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profile_widget_user_profiles ENABLE ROW LEVEL SECURITY;
 
--- 사용자는 자신의 프로필만 조회/수정할 수 있도록 정책 설정
-CREATE POLICY "Users can view own profile" ON user_profiles
-  FOR SELECT USING (auth.uid() = user_id);
+-- 앱별 데이터 격리를 위한 RLS 정책 설정
+CREATE POLICY "Users can view own profile in profile-widget app" ON profile_widget_user_profiles
+  FOR SELECT USING (
+    auth.uid() = user_id AND 
+    app_name = 'profile-widget'
+  );
 
-CREATE POLICY "Users can insert own profile" ON user_profiles
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can insert own profile in profile-widget app" ON profile_widget_user_profiles
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id AND 
+    app_name = 'profile-widget'
+  );
 
-CREATE POLICY "Users can update own profile" ON user_profiles
-  FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can update own profile in profile-widget app" ON profile_widget_user_profiles
+  FOR UPDATE USING (
+    auth.uid() = user_id AND 
+    app_name = 'profile-widget'
+  );
+
+CREATE POLICY "Users can delete own profile in profile-widget app" ON profile_widget_user_profiles
+  FOR DELETE USING (
+    auth.uid() = user_id AND 
+    app_name = 'profile-widget'
+  );
+
+-- 성능 최적화를 위한 인덱스 생성
+CREATE INDEX IF NOT EXISTS idx_profile_widget_user_profiles_user_id 
+  ON profile_widget_user_profiles(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_profile_widget_user_profiles_app_name 
+  ON profile_widget_user_profiles(app_name);
+
+CREATE INDEX IF NOT EXISTS idx_profile_widget_user_profiles_user_app 
+  ON profile_widget_user_profiles(user_id, app_name);
+
+CREATE INDEX IF NOT EXISTS idx_profile_widget_user_profiles_created_at 
+  ON profile_widget_user_profiles(created_at DESC);
 ```
 
 ## 4. 연결 확인

@@ -188,16 +188,41 @@ html, body {
 }
 
 
-/* Profile Card Styles (고정 크기) */
+/* Profile Card Styles (반응형 크기) */
 .profile-card {
   position: relative;
   background: white;
   border-radius: 20px;
   overflow: visible;
-  width: 340px !important;
-  height: 450px !important;
+  width: 340px;
+  height: 450px;
   margin: 0 auto;
   flex-shrink: 0;
+}
+
+/* 반응형 프로필 카드 크기 조정 */
+@media screen and (max-width: 768px) {
+  .profile-card {
+    width: 320px;
+    height: 430px;
+    border-radius: 18px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile-card {
+    width: 300px;
+    height: 410px;
+    border-radius: 16px;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .profile-card {
+    width: 280px;
+    height: 390px;
+    border-radius: 14px;
+  }
 }
 
 /* Header Banner */
@@ -212,6 +237,28 @@ html, body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+}
+
+/* 반응형 헤더 배너 높이 조정 */
+@media screen and (max-width: 768px) {
+  .header-banner {
+    height: 150px;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .header-banner {
+    height: 140px;
+    border-radius: 16px 16px 0 0;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .header-banner {
+    height: 130px;
+    border-radius: 14px 14px 0 0;
+  }
 }
 
 .header-banner:hover {
@@ -242,14 +289,33 @@ html, body {
   transition: opacity 0.2s ease;
 }
 
+/* 반응형 배너 아이콘 크기 조정 */
+@media screen and (max-width: 768px) {
+  .banner-icon {
+    font-size: 30px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .banner-icon {
+    font-size: 28px;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .banner-icon {
+    font-size: 26px;
+  }
+}
+
 .header-banner:hover .banner-icon {
   opacity: 1;
 }
 
-/* Profile Avatar (고정 크기) */
+/* Profile Avatar (반응형 크기) */
 .profile-avatar {
-  width: 110px !important;
-  height: 110px !important;
+  width: 110px;
+  height: 110px;
   background: #C4C4C4;
   border: 6px solid white;
   border-radius: 50%;
@@ -262,6 +328,31 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+/* 반응형 아바타 크기 조정 */
+@media screen and (max-width: 768px) {
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    border: 5px solid white;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    border: 4px solid white;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border: 3px solid white;
+  }
 }
 
 .profile-avatar:hover {
@@ -292,6 +383,25 @@ html, body {
   transition: opacity 0.2s ease;
 }
 
+/* 반응형 아바타 아이콘 크기 조정 */
+@media screen and (max-width: 768px) {
+  .avatar-icon {
+    font-size: 22px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .avatar-icon {
+    font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .avatar-icon {
+    font-size: 18px;
+  }
+}
+
 .profile-avatar:hover .avatar-icon {
   opacity: 1;
 }
@@ -304,6 +414,25 @@ html, body {
   letter-spacing: -0.10px;
   line-height: 1;
   font-family: 'NeoDunggeunmo', var(--font-press-start-2p), monospace;
+}
+
+/* 반응형 프로필 이름 크기 조정 */
+@media screen and (max-width: 768px) {
+  .profile-name h1 {
+    font-size: 21px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .profile-name h1 {
+    font-size: 19px;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  .profile-name h1 {
+    font-size: 17px;
+  }
 }
 
 .clickable-name {
@@ -1256,41 +1385,10 @@ html, body {
   height: auto !important;
 }
 
-/* Phase 5: 에러 추적 및 디버깅 스타일 */
+/* Phase 5: 에러 추적 스타일 제거됨 (프로덕션 환경) */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* 디버그 정보 표시 */
-#debug-error-display,
-#debug-promise-error,
-#debug-info-display {
-  /* 디버그 오버레이 기본 스타일 */
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
-  line-height: 1.4 !important;
-  word-break: break-all !important;
-  user-select: text !important;
-}
-
-/* 에러 디스플레이 애니메이션 */
-#debug-error-display {
-  animation: slideInFromBottom 0.3s ease-out !important;
-}
-
-#debug-promise-error {
-  animation: slideInFromBottom 0.3s ease-out 0.1s both !important;
-}
-
-@keyframes slideInFromBottom {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
 }
 
 /* 로딩 오버레이 스타일 */
@@ -1307,52 +1405,9 @@ html, body {
   border-color: transparent !important;
 }
 
-/* 디버그 상태 표시기 */
-#phase5-error-indicator {
-  /* 에러 추적 활성화 표시 */
-  transition: all 0.3s ease !important;
-  cursor: pointer !important;
-}
+/* 디버그 상태 표시기 제거됨 */
 
-#phase5-error-indicator:hover {
-  background: rgba(255, 0, 0, 0.2) !important;
-  transform: scale(1.05) !important;
-}
-
-/* 노션 모바일 환경에서 디버깅 최적화 */
-.notion-mobile-optimized #debug-error-display,
-.notion-mobile-optimized #debug-promise-error,
-.notion-mobile-optimized #debug-info-display {
-  /* 노션 모바일에서 디버그 정보 최적화 */
-  font-size: 11px !important;
-  padding: 6px 10px !important;
-  max-width: 280px !important;
-}
-
-/* iframe 환경에서 디버깅 최적화 */
-.iframe-embedded #debug-error-display,
-.iframe-embedded #debug-promise-error,
-.iframe-embedded #debug-info-display {
-  /* iframe 내에서 디버그 정보 최적화 */
-  z-index: 99999 !important;
-  position: fixed !important;
-}
-
-/* 디버그 정보 자동 숨김 애니메이션 */
-.debug-auto-hide {
-  animation: fadeOut 0.5s ease-in forwards !important;
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-}
+/* 디버깅 최적화 스타일 제거됨 (프로덕션 환경) */
 
 /* CodePen 임베드 스타일 */
 .codepen-embed {

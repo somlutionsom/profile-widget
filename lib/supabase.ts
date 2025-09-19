@@ -13,9 +13,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   },
   global: {
-    headers: { 'x-my-custom-header': 'my-app-name' },
+    headers: { 
+      'x-app-name': 'profile-widget',
+      'x-app-version': '1.0.0'
+    },
   },
 })
+
+// 앱 설정 상수
+export const APP_CONFIG = {
+  name: 'profile-widget',
+  version: '1.0.0',
+  tablePrefix: 'profile_widget_',
+  defaultAppName: 'profile-widget'
+} as const;
 
 // 연결 테스트 함수
 export async function testSupabaseConnection() {
@@ -109,6 +120,7 @@ export async function getCurrentUser() {
 export interface UserProfile {
   id?: string
   user_id: string
+  app_name: string
   profile_name: string
   button_color: string
   avatar_image?: string
@@ -122,16 +134,16 @@ export interface UserProfile {
   updated_at?: string
 }
 
-// 사용자 프로필 데이터 가져오기 (최적화됨)
+// 사용자 프로필 데이터 가져오기 (앱별 데이터 격리 적용)
 export async function getUserProfile(userId: string) {
   try {
-    console.log('프로필 데이터 불러오기 시도 - 사용자 ID:', userId);
+    console.log('프로필 데이터 불러오기 시도 - 사용자 ID:', userId, '앱:', APP_CONFIG.name);
     
-    // 인증 확인 제거 - 이미 로그인된 상태에서만 호출되므로 불필요
     const { data, error } = await supabase
-      .from('user_profiles')
+      .from(`${APP_CONFIG.tablePrefix}user_profiles`)
       .select('*')
       .eq('user_id', userId)
+      .eq('app_name', APP_CONFIG.defaultAppName)
       .single()
     
     if (error) {
@@ -142,6 +154,7 @@ export async function getUserProfile(userId: string) {
           success: true, 
           data: {
             user_id: userId,
+            app_name: APP_CONFIG.defaultAppName,
             profile_name: '♡⸝⸝',
             button_color: '#FFD0D8',
             first_text: '문구를 입력해 주세요 ♡',
@@ -166,7 +179,7 @@ export async function getUserProfile(userId: string) {
   }
 }
 
-// 닉네임만 업데이트하는 함수
+// 닉네임만 업데이트하는 함수 (앱별 데이터 격리 적용)
 export async function updateProfileName(profileName: string) {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -177,12 +190,13 @@ export async function updateProfileName(profileName: string) {
     }
 
     const result = await supabase
-      .from('user_profiles')
+      .from(`${APP_CONFIG.tablePrefix}user_profiles`)
       .upsert({
         user_id: user.id,
+        app_name: APP_CONFIG.defaultAppName,
         profile_name: profileName
       }, {
-        onConflict: 'user_id'
+        onConflict: 'user_id,app_name'
       })
       .select()
       .single()
@@ -199,7 +213,7 @@ export async function updateProfileName(profileName: string) {
   }
 }
 
-// 첫번째 텍스트만 업데이트하는 함수
+// 첫번째 텍스트만 업데이트하는 함수 (앱별 데이터 격리 적용)
 export async function updateFirstText(firstText: string) {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -210,12 +224,13 @@ export async function updateFirstText(firstText: string) {
     }
 
     const result = await supabase
-      .from('user_profiles')
+      .from(`${APP_CONFIG.tablePrefix}user_profiles`)
       .upsert({
         user_id: user.id,
+        app_name: APP_CONFIG.defaultAppName,
         first_text: firstText
       }, {
-        onConflict: 'user_id'
+        onConflict: 'user_id,app_name'
       })
       .select()
       .single()
@@ -232,7 +247,7 @@ export async function updateFirstText(firstText: string) {
   }
 }
 
-// 두번째 텍스트만 업데이트하는 함수
+// 두번째 텍스트만 업데이트하는 함수 (앱별 데이터 격리 적용)
 export async function updateSecondText(secondText: string) {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -243,12 +258,13 @@ export async function updateSecondText(secondText: string) {
     }
 
     const result = await supabase
-      .from('user_profiles')
+      .from(`${APP_CONFIG.tablePrefix}user_profiles`)
       .upsert({
         user_id: user.id,
+        app_name: APP_CONFIG.defaultAppName,
         second_text: secondText
       }, {
-        onConflict: 'user_id'
+        onConflict: 'user_id,app_name'
       })
       .select()
       .single()
@@ -265,7 +281,7 @@ export async function updateSecondText(secondText: string) {
   }
 }
 
-// 사용자 프로필 데이터 저장/업데이트 (전체 데이터용)
+// 사용자 프로필 데이터 저장/업데이트 (전체 데이터용, 앱별 데이터 격리 적용)
 export async function saveUserProfile(profileData: Partial<UserProfile>) {
   try {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -275,32 +291,38 @@ export async function saveUserProfile(profileData: Partial<UserProfile>) {
       return { success: false, error: '로그인이 필요합니다' }
     }
 
+    console.log('프로필 데이터 저장 시도 - 사용자 ID:', user.id, '앱:', APP_CONFIG.name);
+
     // UPSERT 방식으로 단일 쿼리로 처리 (최적화됨)
     const result = await supabase
-      .from('user_profiles')
+      .from(`${APP_CONFIG.tablePrefix}user_profiles`)
       .upsert({
         user_id: user.id,
-          profile_name: profileData.profile_name || '♡⸝⸝',
-          button_color: profileData.button_color || '#FFD0D8',
-          avatar_image: profileData.avatar_image || null,
-          banner_image: profileData.banner_image || null,
-          saved_url: profileData.saved_url || null,
-          first_text: profileData.first_text || '문구를 입력해 주세요 ♡',
-          second_text: profileData.second_text || '문구를 입력해 주세요 ♡',
+        app_name: APP_CONFIG.defaultAppName,
+        profile_name: profileData.profile_name || '♡⸝⸝',
+        button_color: profileData.button_color || '#FFD0D8',
+        avatar_image: profileData.avatar_image || null,
+        banner_image: profileData.banner_image || null,
+        saved_url: profileData.saved_url || null,
+        first_text: profileData.first_text || '문구를 입력해 주세요 ♡',
+        second_text: profileData.second_text || '문구를 입력해 주세요 ♡',
         text: profileData.text || null,
         hyperlink: profileData.hyperlink || null
       }, {
-        onConflict: 'user_id'
+        onConflict: 'user_id,app_name'
       })
       .select()
       .single()
 
     if (result.error) {
+      console.error('프로필 저장 실패:', result.error);
       return { success: false, error: result.error.message || '저장 실패' }
     }
 
+    console.log('프로필 데이터 저장 성공:', result.data);
     return { success: true, data: result.data }
-  } catch {
+  } catch (error) {
+    console.error('프로필 저장 중 예외 발생:', error);
     return { success: false, error: '프로필 저장 실패' }
   }
 }

@@ -1248,27 +1248,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Phase 5: 에러 상태 표시 */}
-      {isNotionMobile && (
-        <div 
-          id="phase5-error-indicator"
-          style={{
-            position: 'fixed',
-            bottom: '10px',
-            left: '10px',
-            background: 'rgba(255, 0, 0, 0.1)',
-            border: '1px solid rgba(255, 0, 0, 0.3)',
-            borderRadius: '4px',
-            padding: '4px 8px',
-            fontSize: '10px',
-            color: '#666',
-            zIndex: 9998,
-            fontFamily: 'monospace'
-          }}
-        >
-          🚨 에러 추적 활성화
-        </div>
-      )}
+    {/* Phase 5: 에러 상태 표시 제거됨 (프로덕션 환경) */}
     </div>
   );
 }
