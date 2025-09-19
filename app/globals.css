@@ -1255,3 +1255,101 @@ html, body {
   min-height: auto !important;
   height: auto !important;
 }
+
+/* Phase 5: 에러 추적 및 디버깅 스타일 */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 디버그 정보 표시 */
+#debug-error-display,
+#debug-promise-error,
+#debug-info-display {
+  /* 디버그 오버레이 기본 스타일 */
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  line-height: 1.4 !important;
+  word-break: break-all !important;
+  user-select: text !important;
+}
+
+/* 에러 디스플레이 애니메이션 */
+#debug-error-display {
+  animation: slideInFromBottom 0.3s ease-out !important;
+}
+
+#debug-promise-error {
+  animation: slideInFromBottom 0.3s ease-out 0.1s both !important;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 로딩 오버레이 스타일 */
+.progressive-loading-overlay {
+  /* 로딩 오버레이 기본 스타일 */
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
+}
+
+.progressive-loading-overlay .loading-spinner {
+  /* 로딩 스피너 스타일 */
+  animation: spin 1s linear infinite !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+}
+
+/* 디버그 상태 표시기 */
+#phase5-error-indicator {
+  /* 에러 추적 활성화 표시 */
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+#phase5-error-indicator:hover {
+  background: rgba(255, 0, 0, 0.2) !important;
+  transform: scale(1.05) !important;
+}
+
+/* 노션 모바일 환경에서 디버깅 최적화 */
+.notion-mobile-optimized #debug-error-display,
+.notion-mobile-optimized #debug-promise-error,
+.notion-mobile-optimized #debug-info-display {
+  /* 노션 모바일에서 디버그 정보 최적화 */
+  font-size: 11px !important;
+  padding: 6px 10px !important;
+  max-width: 280px !important;
+}
+
+/* iframe 환경에서 디버깅 최적화 */
+.iframe-embedded #debug-error-display,
+.iframe-embedded #debug-promise-error,
+.iframe-embedded #debug-info-display {
+  /* iframe 내에서 디버그 정보 최적화 */
+  z-index: 99999 !important;
+  position: fixed !important;
+}
+
+/* 디버그 정보 자동 숨김 애니메이션 */
+.debug-auto-hide {
+  animation: fadeOut 0.5s ease-in forwards !important;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}

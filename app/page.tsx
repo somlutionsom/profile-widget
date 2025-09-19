@@ -69,6 +69,10 @@ export default function Home() {
   const [progressiveStage, setProgressiveStage] = useState(1);
   const [isProgressiveLoading, setIsProgressiveLoading] = useState(false);
 
+  // Phase 5: 디버깅 및 상태 모니터링
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+
   // Phase 3: iframe 통신 함수들
   const sendHeightUpdate = () => {
     if (isInIframe && (window as any).iframeBridge?.isActive) {
@@ -608,6 +612,46 @@ export default function Home() {
 
     setupProgressiveLoading();
 
+    // Phase 5: 로딩 오버레이 및 디버깅 설정
+    const setupDebuggingAndOverlay = () => {
+      if (isNotionMobile) {
+        // 로딩 오버레이 표시
+        setShowLoadingOverlay(true);
+        
+        // 3초 후 로딩 오버레이 숨김
+        setTimeout(() => {
+          setShowLoadingOverlay(false);
+        }, 3000);
+        
+        // 디버그 정보 수집
+        const collectDebugInfo = () => {
+          const info = {
+            userAgent: navigator.userAgent,
+            isNotionMobile: isNotionMobile,
+            isInIframe: isInIframe,
+            progressiveStage: progressiveStage,
+            isProgressiveLoading: isProgressiveLoading,
+            userInteracted: userInteracted,
+            heavyResourcesLoaded: heavyResourcesLoaded,
+            iframeHeight: iframeHeight,
+            timestamp: new Date().toISOString(),
+            performance: {
+              navigationStart: performance.timing?.navigationStart || 0,
+              loadEventEnd: performance.timing?.loadEventEnd || 0,
+              domContentLoaded: performance.timing?.domContentLoadedEventEnd || 0
+            }
+          };
+          setDebugInfo(info);
+          console.log('디버그 정보 수집 완료:', info);
+        };
+        
+        // 2초 후 디버그 정보 수집
+        setTimeout(collectDebugInfo, 2000);
+      }
+    };
+
+    setupDebuggingAndOverlay();
+
     // 사용자 로그인 상태 확인 및 데이터 불러오기 (최적화됨)
     const checkUserAndLoadData = async () => {
       try {
@@ -1099,6 +1143,130 @@ export default function Home() {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Phase 5: 로딩 오버레이 */}
+      {showLoadingOverlay && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(255, 255, 255, 0.95)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+          }}
+        >
+          <div style={{
+            textAlign: 'center',
+            padding: '20px',
+            borderRadius: '12px',
+            background: 'white',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            maxWidth: '300px'
+          }}>
+            <div style={{
+              width: '50px',
+              height: '50px',
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #FFD0D8',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 20px'
+            }}></div>
+            <div style={{
+              fontSize: '16px',
+              fontWeight: '500',
+              color: '#333',
+              marginBottom: '8px'
+            }}>프로필 위젯 로딩 중...</div>
+            <div style={{
+              fontSize: '12px',
+              color: '#666',
+              marginBottom: '16px'
+            }}>노션 모바일 최적화 적용</div>
+            <div style={{
+              fontSize: '10px',
+              color: '#999',
+              fontFamily: 'monospace'
+            }}>
+              Phase 1-4 완료 • iframe 통신 활성화
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Phase 5: 디버깅 정보 표시 (개발 환경에서만) */}
+      {debugInfo && (window.location.hostname === 'localhost' || window.location.hostname.includes('vercel.app')) && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: '10px',
+            right: '10px',
+            background: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '8px',
+            fontSize: '10px',
+            fontFamily: 'monospace',
+            zIndex: 9999,
+            maxWidth: '250px',
+            maxHeight: '200px',
+            overflow: 'auto',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+          }}
+        >
+          <div style={{ fontWeight: 'bold', marginBottom: '5px', color: '#00ff00' }}>🔍 디버그 상태</div>
+          <div>노션 모바일: {debugInfo.isNotionMobile ? '✅' : '❌'}</div>
+          <div>iframe: {debugInfo.isInIframe ? '✅' : '❌'}</div>
+          <div>로딩 단계: {debugInfo.progressiveStage}/3</div>
+          <div>사용자 상호작용: {debugInfo.userInteracted ? '✅' : '❌'}</div>
+          <div>리소스 로딩: {debugInfo.heavyResourcesLoaded ? '✅' : '❌'}</div>
+          <div>iframe 높이: {debugInfo.iframeHeight}px</div>
+          <button 
+            onClick={() => setDebugInfo(null)}
+            style={{
+              marginTop: '5px',
+              background: '#333',
+              color: 'white',
+              border: 'none',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontSize: '9px'
+            }}
+          >
+            닫기
+          </button>
+        </div>
+      )}
+
+      {/* Phase 5: 에러 상태 표시 */}
+      {isNotionMobile && (
+        <div 
+          id="phase5-error-indicator"
+          style={{
+            position: 'fixed',
+            bottom: '10px',
+            left: '10px',
+            background: 'rgba(255, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 0, 0, 0.3)',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '10px',
+            color: '#666',
+            zIndex: 9998,
+            fontFamily: 'monospace'
+          }}
+        >
+          🚨 에러 추적 활성화
         </div>
       )}
     </div>
