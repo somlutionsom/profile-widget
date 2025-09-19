@@ -13,7 +13,7 @@ const nextConfig = {
   
   // Mobile-specific optimizations
   experimental: {
-    optimizeCss: true,
+    // optimizeCss: true, // Removed due to Vercel deployment issues
   },
   
   async headers() {
