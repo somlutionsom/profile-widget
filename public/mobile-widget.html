@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .profile-card {
+            width: 340px;
+            height: 450px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .banner {
+            height: 160px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 4px solid white;
+            position: absolute;
+            top: 105px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e0e0e0;
+        }
+        
+        .content {
+            margin-top: 60px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .profile-name {
+            font-size: 23px;
+            font-weight: bold;
+            color: #484747;
+            margin-bottom: 20px;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: #FFD0D8;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+        
+        .text {
+            color: #666;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .login-link {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 380px) {
+            .profile-card {
+                width: 100%;
+                max-width: 340px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="banner" id="banner"></div>
+        <div class="avatar" id="avatar"></div>
+        <div class="content">
+            <div class="profile-name" id="profileName">♡⸝⸝</div>
+            <div class="buttons">
+                <button class="btn btn-primary" id="mainBtn">Button</button>
+                <button class="btn btn-secondary" id="saveBtn" style="display:none">Save</button>
+            </div>
+            <div class="text" id="text1">문구를 입력해 주세요 ♡</div>
+            <div class="text" id="text2">문구를 입력해 주세요 ♡</div>
+        </div>
+        <span class="login-link" id="authLink">login</span>
+    </div>
+    
+    <script>
+        // Minimal JavaScript for basic functionality
+        const profileData = {
+            name: localStorage.getItem('pw_name') || '♡⸝⸝',
+            color: localStorage.getItem('pw_color') || '#FFD0D8',
+            text1: localStorage.getItem('pw_text1') || '문구를 입력해 주세요 ♡',
+            text2: localStorage.getItem('pw_text2') || '문구를 입력해 주세요 ♡'
+        };
+        
+        // Apply saved data
+        document.getElementById('profileName').textContent = profileData.name;
+        document.getElementById('mainBtn').style.backgroundColor = profileData.color;
+        document.getElementById('text1').textContent = profileData.text1;
+        document.getElementById('text2').textContent = profileData.text2;
+        
+        // Simple edit mode
+        let editMode = false;
+        document.getElementById('authLink').addEventListener('click', function() {
+            editMode = !editMode;
+            this.textContent = editMode ? 'save' : 'login';
+            
+            if (editMode) {
+                // Enable editing
+                const nameEl = document.getElementById('profileName');
+                const text1El = document.getElementById('text1');
+                const text2El = document.getElementById('text2');
+                
+                nameEl.contentEditable = true;
+                text1El.contentEditable = true;
+                text2El.contentEditable = true;
+                
+                document.getElementById('saveBtn').style.display = 'inline-block';
+            } else {
+                // Save and disable editing
+                localStorage.setItem('pw_name', document.getElementById('profileName').textContent);
+                localStorage.setItem('pw_text1', document.getElementById('text1').textContent);
+                localStorage.setItem('pw_text2', document.getElementById('text2').textContent);
+                
+                document.querySelectorAll('[contenteditable]').forEach(el => {
+                    el.contentEditable = false;
+                });
+                
+                document.getElementById('saveBtn').style.display = 'none';
+            }
+        });
+        
+        // Save button
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            localStorage.setItem('pw_name', document.getElementById('profileName').textContent);
+            localStorage.setItem('pw_text1', document.getElementById('text1').textContent);
+            localStorage.setItem('pw_text2', document.getElementById('text2').textContent);
+            alert('Saved!');
+        });
+        
+        // Notify parent frame of height
+        if (window.parent !== window) {
+            const sendHeight = () => {
+                window.parent.postMessage({
+                    type: 'resize',
+                    height: document.body.scrollHeight
+                }, '*');
+            };
+            
+            window.addEventListener('load', sendHeight);
+            window.addEventListener('resize', sendHeight);
+        }
+    </script>
+</body>
+</html>
