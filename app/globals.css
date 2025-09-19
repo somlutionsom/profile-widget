@@ -1353,3 +1353,134 @@ html, body {
     transform: translateY(20px);
   }
 }
+
+/* CodePen 임베드 스타일 */
+.codepen-embed {
+  /* CodePen 다크 테마 스타일 */
+  background: #1e1f26 !important;
+  color: #ffffff !important;
+}
+
+.codepen-embed .main-container {
+  background: #1e1f26 !important;
+  color: #ffffff !important;
+}
+
+.codepen-embed .outer-container {
+  background: transparent !important;
+}
+
+.codepen-embed .profile-card {
+  /* CodePen 스타일의 카드 */
+  background: #2d2d30 !important;
+  border: 1px solid #3d3d40 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+  color: #ffffff !important;
+}
+
+.codepen-embed .profile-content {
+  color: #ffffff !important;
+}
+
+.codepen-embed .clickable-name,
+.codepen-embed .clickable-text,
+.codepen-embed .text {
+  color: #ffffff !important;
+}
+
+.codepen-embed .icon {
+  color: #ffffff !important;
+}
+
+.codepen-embed button {
+  /* CodePen 스타일의 버튼 */
+  background: #007acc !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 4px !important;
+  transition: background 0.2s ease !important;
+}
+
+.codepen-embed button:hover {
+  background: #005a9e !important;
+}
+
+.codepen-embed .primary-button,
+.codepen-embed .secondary-button,
+.codepen-embed .icon-button {
+  background: #007acc !important;
+  color: #ffffff !important;
+}
+
+.codepen-embed .primary-button:hover,
+.codepen-embed .secondary-button:hover,
+.codepen-embed .icon-button:hover {
+  background: #005a9e !important;
+}
+
+.codepen-embed input {
+  /* CodePen 스타일의 입력 필드 */
+  background: #3d3d40 !important;
+  color: #ffffff !important;
+  border: 1px solid #5d5d60 !important;
+  border-radius: 4px !important;
+}
+
+.codepen-embed input:focus {
+  border-color: #007acc !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2) !important;
+}
+
+.codepen-embed .color-palette {
+  background: #2d2d30 !important;
+  border: 1px solid #3d3d40 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+
+.codepen-embed .color-option {
+  border: 1px solid #5d5d60 !important;
+  border-radius: 4px !important;
+}
+
+.codepen-embed .color-option:hover {
+  border-color: #007acc !important;
+  transform: scale(1.1) !important;
+}
+
+/* CodePen 임베드 전용 애니메이션 */
+.codepen-embed .profile-card {
+  animation: codepenSlideIn 0.5s ease-out !important;
+}
+
+@keyframes codepenSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* CodePen 임베드에서 iframe 최적화 */
+.codepen-embed.iframe-embedded {
+  /* CodePen 스타일의 iframe 최적화 */
+  background: #1e1f26 !important;
+  overflow: visible !important;
+  position: static !important;
+}
+
+/* CodePen 임베드 로딩 오버레이 */
+.codepen-embed .progressive-loading-overlay {
+  background: rgba(30, 31, 38, 0.95) !important;
+  color: #ffffff !important;
+}
+
+.codepen-embed .progressive-loading-overlay .loading-spinner {
+  border-color: #f3f3f3 !important;
+  border-top-color: #007acc !important;
+}
